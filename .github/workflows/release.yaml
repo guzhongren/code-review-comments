@@ -21,6 +21,6 @@ jobs:
       - name: Publish
         run: npx vsce package
       - name: Publish to VS Code Marketplace
-        run: npm vsce publish
+        run: npx vsce publish
         env:
           VSCE_PAT: ${{ secrets.AZURE_DEVOPS_VSCE_PAT }}

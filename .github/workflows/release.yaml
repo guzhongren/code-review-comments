@@ -1,0 +1,26 @@
+name: Publish to VS Code Marketplace
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build_backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+      - name: Build
+        run: npm run compile
+      - name: Publish
+        run: npx vsce package
+      - name: Publish to VS Code Marketplace
+        run: npm vsce publish
+        env:
+          VSCE_PAT: ${{ secrets.AZURE_DEVOPS_VSCE_PAT }}

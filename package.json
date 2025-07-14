@@ -4,6 +4,7 @@
   "displayName": "Diff Comments",
   "description": "Add comments to diff views, just like in GitHub PRs.",
   "version": "1.0.0",
+  "icon": "icon/icon.drawio.png",
   "engines": {
     "vscode": "^1.85.0"
   },

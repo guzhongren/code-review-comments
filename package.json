@@ -1,8 +1,9 @@
 {
   "name": "diff-comments",
+  "publisher": "guzhongren",
   "displayName": "Diff Comments",
   "description": "Add comments to diff views, just like in GitHub PRs.",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -150,7 +151,12 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
+    "@vscode/vsce": "^3.6.0",
     "js-yaml": "^4.1.0",
     "uuid": "^11.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/username/diff-comments.git"
   }
 }

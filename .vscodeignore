@@ -1,6 +1,6 @@
 .vscode/**
 .vscode-test/**
-node_modules/**
+
 .gitignore
 .yarnrc
 .git
@@ -16,3 +16,4 @@ pnpm-lock.yaml
 tsconfig.json
 .pre-commit-config.yaml
 **/*.vsix
+diff-comments.yaml

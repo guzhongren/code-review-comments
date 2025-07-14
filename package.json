@@ -12,6 +12,7 @@
     "Other"
   ],
   "activationEvents": [
+    "onStartupFinished",
     "onView:diff-comments-view",
     "onCommand:diff-comments.addComment"
   ],
@@ -59,7 +60,7 @@
         {
           "id": "diff-comments-view-container",
           "title": "Diff Comments",
-          "icon": "media/icon.svg"
+          "icon": "icon/icon.drawio.png"
         }
       ]
     },
@@ -149,10 +150,10 @@
     "@vscode/test-electron": "^2.3.9",
     "eslint": "^8.57.0",
     "fs-extra": "^11.3.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "@vscode/vsce": "^3.6.0"
   },
   "dependencies": {
-    "@vscode/vsce": "^3.6.0",
     "js-yaml": "^4.1.0",
     "uuid": "^11.1.0"
   },

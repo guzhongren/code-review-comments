@@ -2,4 +2,4 @@ node_modules
 *.vsix
 .DS_Store
 out
-diff-comments.yaml
+.vscode/diff-comments.yaml

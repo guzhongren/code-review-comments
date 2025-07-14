@@ -1,0 +1,156 @@
+{
+  "name": "diff-comments",
+  "displayName": "Diff Comments",
+  "description": "Add comments to diff views, just like in GitHub PRs.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:diff-comments-view",
+    "onCommand:diff-comments.addComment"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "diff-comments.addComment",
+        "title": "Add Diff Comment",
+        "icon": "$(comment-add)"
+      },
+      {
+        "command": "diff-comments.refresh",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "diff-comments.deleteComment",
+        "title": "Delete Comment",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "diff-comments.editComment",
+        "title": "Edit Comment",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "diff-comments.jumpToComment",
+        "title": "Jump to Comment",
+        "icon": "$(go-to-file)"
+      },
+      {
+        "command": "diff-comments.showDiffInfo",
+        "title": "Show Diff Info",
+        "icon": "$(info)"
+      },
+      {
+        "command": "diff-comments.toggleCompleted",
+        "title": "Toggle Completed",
+        "icon": "$(check)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "diff-comments-view-container",
+          "title": "Diff Comments",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "diff-comments-view-container": [
+        {
+          "id": "diff-comments-view",
+          "name": "Comments",
+          "contextualTitle": "Diff Comments"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "diff-comments.refresh",
+          "when": "view == diff-comments-view",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "diff-comments.toggleCompleted",
+          "when": "view == diff-comments-view && viewItem == comment",
+          "group": "inline"
+        },
+        {
+          "command": "diff-comments.editComment",
+          "when": "view == diff-comments-view && viewItem == comment",
+          "group": "inline"
+        },
+        {
+          "command": "diff-comments.deleteComment",
+          "when": "view == diff-comments-view && viewItem == comment",
+          "group": "inline"
+        }
+      ],
+      "editor/context": [
+        {
+          "when": "isInDiffEditor",
+          "command": "diff-comments.addComment",
+          "group": "navigation"
+        }
+      ]
+    },
+    "colors": [
+      {
+        "id": "diffComments.completedForeground",
+        "description": "Foreground color for completed comments",
+        "defaults": {
+          "dark": "#888888",
+          "light": "#888888"
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "vscode-test"
+  },
+  "eslintConfig": {
+    "root": true,
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint"
+    ],
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/recommended"
+    ],
+    "rules": {}
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/js-yaml": "^4.0.9",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^24.0.13",
+    "@types/uuid": "^10.0.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^7.7.1",
+    "@typescript-eslint/parser": "^7.7.1",
+    "@vscode/test-cli": "^0.0.9",
+    "@vscode/test-electron": "^2.3.9",
+    "eslint": "^8.57.0",
+    "fs-extra": "^11.3.0",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "uuid": "^11.1.0"
+  }
+}

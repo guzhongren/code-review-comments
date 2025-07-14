@@ -4,9 +4,15 @@ on:
   push:
     tags:
       - '*'
-
 jobs:
-  build_backend:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v3
+      - uses: pre-commit/action@v3.0.1
+  publish:
+    needs:
+      - check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,4 +29,4 @@ jobs:
       - name: Publish to VS Code Marketplace
         run: npx vsce publish
         env:
-          VSCE_PAT: ${{ secrets.AZURE_DEVOPS_VSCE_PAT }}
+          VSCE_PAT: ${{ secrets.AZURE_DEVOPS_VSCE_PAT }} # generate it ref https://code.visualstudio.com/api/working-with-extensions/publishing-extension#get-a-personal-access-token

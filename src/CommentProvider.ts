@@ -82,12 +82,7 @@ class CommentTreeItem extends vscode.TreeItem {
             this.tooltip = `${this.label}\n\nFile: ${relativePath}\nCommit: ${this.comment.commitHash.substring(0, 7)}\nLine: ${this.comment.lineNumber + 1}`;
         }
 
-        // Apply gray styling for completed comments
-        if (this.comment.completed) {
-            this.resourceUri = vscode.Uri.parse(`completed:${this.comment.id}`);
-            // Use a more subtle approach by overriding the label with strikethrough
-            this.label = `~~${this.label}~~`;
-        }
+
 
         this.contextValue = 'comment';
     }

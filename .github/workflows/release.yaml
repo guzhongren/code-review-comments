@@ -27,6 +27,18 @@ jobs:
         run: npm run compile
       - name: Publish
         run: npx vsce package
+      - name: Get VSIX package name
+        id: get_vsix_name
+        run: echo "vsix_path=$(ls *.vsix)" >> $GITHUB_OUTPUT
+
+      - name: Upload Release Asset
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ steps.get_vsix_name.outputs.vsix_path }}
+          asset_name: ${{ steps.get_vsix_name.outputs.vsix_path }}
+          tag: ${{ github.ref }}
+          overwrite: true
       - name: Publish to VS Code Marketplace
         run: npx vsce publish
         env:

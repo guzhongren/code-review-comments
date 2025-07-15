@@ -3,7 +3,7 @@
   "publisher": "guzhongren",
   "displayName": "Diff Comments",
   "description": "Add comments to diff views, just like in GitHub PRs.",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "license": "GPL-3.0-or-later",
   "homepage": "https://github.com/guzhongren/diff-comments#readme",
   "bugs": {

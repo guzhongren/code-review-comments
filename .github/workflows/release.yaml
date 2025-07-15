@@ -14,6 +14,8 @@ jobs:
   publish:
     needs:
       - check
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,9 +25,9 @@ jobs:
           node-version: 'lts/*'
       - name: Install dependencies
         run: npm install --ignore-scripts
-      - name: Build
+      - name: Compile
         run: npm run compile
-      - name: Publish
+      - name: Package
         run: npx vsce package
       - name: Get VSIX package name
         id: get_vsix_name

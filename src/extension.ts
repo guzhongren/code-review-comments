@@ -27,6 +27,35 @@ export function activate(context: vscode.ExtensionContext) {
     const commentProvider = new CommentProvider(storageManager);
     const diffContentProvider = new DiffContentProvider();
 
+    const bellDecorationType = vscode.window.createTextEditorDecorationType({
+        gutterIconPath: context.asAbsolutePath(path.join('icon', 'bell.svg')),
+        gutterIconSize: 'contain'
+    });
+
+    function updateDecorations(editor: vscode.TextEditor | undefined) {
+        if (!editor) {
+            return;
+        }
+
+        if (editor.document.uri.scheme !== DiffContentProvider.scheme) {
+            editor.setDecorations(bellDecorationType, []);
+            return;
+        }
+
+        const query = JSON.parse(editor.document.uri.query);
+        const comments = storageManager.readComments();
+        const decorations: vscode.DecorationOptions[] = [];
+
+        for (const comment of comments) {
+            const commentFileUri = vscode.Uri.file(path.join(query.repoRoot, query.relativePath));
+            if (comment.fileUri.toString() === commentFileUri.toString() && (comment.commitHash === query.commitHash || comment.parentHash === query.commitHash)) {
+                const position = new vscode.Position(comment.lineNumber, 0);
+                decorations.push({ range: new vscode.Range(position, position) });
+            }
+        }
+        editor.setDecorations(bellDecorationType, decorations);
+    }
+
     context.subscriptions.push(
         vscode.workspace.registerTextDocumentContentProvider(DiffContentProvider.scheme, diffContentProvider)
     );
@@ -35,6 +64,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(vscode.commands.registerCommand('diff-comments.refresh', () => {
         commentProvider.refresh();
+        updateDecorations(vscode.window.activeTextEditor);
     }));
 
     context.subscriptions.push(vscode.commands.registerCommand('diff-comments.addComment', async () => {
@@ -280,6 +310,7 @@ export function activate(context: vscode.ExtensionContext) {
                     const position = new vscode.Position(comment.lineNumber, 0);
                     editor.selections = [new vscode.Selection(position, position)];
                     editor.revealRange(new vscode.Range(position, position), vscode.TextEditorRevealType.InCenter);
+                    updateDecorations(editor);
                 }
             }, 500);
 
@@ -340,6 +371,12 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.showErrorMessage(`Failed to get commit information: ${error}`);
         }
     }));
+
+    context.subscriptions.push(
+        vscode.window.onDidChangeActiveTextEditor(editor => {
+            updateDecorations(editor);
+        })
+    );
 }
 
 export function deactivate() {}

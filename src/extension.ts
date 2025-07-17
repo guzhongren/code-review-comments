@@ -48,7 +48,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         for (const comment of comments) {
             const commentFileUri = vscode.Uri.file(path.join(query.repoRoot, query.relativePath));
-            if (comment.fileUri.toString() === commentFileUri.toString() && (comment.commitHash === query.commitHash || comment.parentHash === query.commitHash)) {
+            if (comment.fileUri.toString() === commentFileUri.toString() && comment.commitHash === query.commitHash) {
                 const position = new vscode.Position(comment.lineNumber, 0);
                 decorations.push({ range: new vscode.Range(position, position) });
             }
@@ -210,6 +210,7 @@ export function activate(context: vscode.ExtensionContext) {
             };
             storageManager.addComment(comment);
             commentProvider.refresh();
+            updateDecorations(vscode.window.activeTextEditor);
 
             // Show a confirmation message with the commit info
             const commitInfo = parentHash
@@ -222,6 +223,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('diff-comments.deleteComment', (item) => {
         storageManager.deleteComment(item.comment.id);
         commentProvider.refresh();
+        updateDecorations(vscode.window.activeTextEditor);
     }));
 
     context.subscriptions.push(vscode.commands.registerCommand('diff-comments.editComment', async (item) => {

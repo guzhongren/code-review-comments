@@ -1,12 +1,11 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { exec } from 'child_process';
 
 import { CommentProvider } from './CommentProvider';
 import { StorageManager } from './StorageManager';
 import { Comment } from './Comment';
-import { GitExtension, API } from './git';
+import { GitExtension, API, LogOptions } from './git';
 import { DiffContentProvider } from './DiffContentProvider';
 
 function getGitApi(): API | undefined {
@@ -137,29 +136,14 @@ export function activate(context: vscode.ExtensionContext) {
                 const relativePath = path.relative(repo.rootUri.fsPath, actualFileUri.fsPath);
 
                 try {
-                    // Use git log to get commits for this specific file
-                    const gitLogResult = await new Promise<string>((resolve, reject) => {
-                        exec(
-                            `git log --max-count=2 --pretty=format:"%H" -- "${relativePath}"`,
-                            { cwd: repo.rootUri.fsPath },
-                            (error: Error | null, stdout: string) => {
-                                if (error) {
-                                    reject(error);
-                                } else {
-                                    resolve(stdout.trim());
-                                }
-                            }
-                        );
-                    });
-
-                    const fileCommits = gitLogResult.split('\n').filter(hash => hash.length > 0);
+                    const fileCommits = await repo.log({ maxEntries: 2, path: relativePath });
                     if (fileCommits.length > 0) {
-                        commitHash = fileCommits[0];
+                        commitHash = fileCommits[0].hash;
                         if (fileCommits.length > 1) {
-                            parentHash = fileCommits[1];
+                            parentHash = fileCommits[1].hash;
                         } else {
                             // If only one commit for this file, get its parent
-                            const commit = await repo.getCommit(fileCommits[0]);
+                            const commit = await repo.getCommit(fileCommits[0].hash);
                             if (commit.parents.length > 0) {
                                 parentHash = commit.parents[0];
                             }

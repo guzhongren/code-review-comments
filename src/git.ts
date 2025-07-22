@@ -42,7 +42,14 @@ export interface Repository {
     getBranches(query?: string): Promise<Branch[]>;
     getCommit(hash: string): Promise<Commit>;
     getCommits(options?: unknown): Promise<Commit[]>;
+    log(options?: LogOptions): Promise<Commit[]>;
     // ... and many more git operations
+}
+
+export interface LogOptions {
+    maxEntries?: number;
+    path?: string;
+    range?: string;
 }
 
 export interface RepositoryState {

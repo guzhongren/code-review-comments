@@ -367,6 +367,34 @@ export function activate(context: vscode.ExtensionContext) {
             updateDecorations(editor);
         })
     );
+
+    // Register Hover Provider
+    context.subscriptions.push(
+        vscode.languages.registerHoverProvider({ scheme: DiffContentProvider.scheme }, {
+            provideHover(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): vscode.ProviderResult<vscode.Hover> {
+                try {
+                    const query = JSON.parse(document.uri.query);
+                    const commentFileUri = vscode.Uri.file(path.join(query.repoRoot, query.relativePath));
+                    const hoveredLine = position.line;
+
+                    const comments = storageManager.readComments();
+                    const matchingComment = comments.find(comment =>
+                        comment.fileUri.fsPath === commentFileUri.fsPath &&
+                        comment.commitHash === query.commitHash &&
+                        comment.lineNumber === hoveredLine
+                    );
+
+                    if (matchingComment) {
+                        const markdown = new vscode.MarkdownString(matchingComment.text);
+                        return new vscode.Hover(markdown);
+                    }
+                } catch (error) {
+                    console.error("Error in HoverProvider:", error);
+                }
+                return undefined;
+            }
+        })
+    );
 }
 
 export function deactivate() {}

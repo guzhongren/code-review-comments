@@ -30,23 +30,25 @@ export class StorageManager {
     }
 
     public readComments(): Comment[] {
-        if (!this.storagePath || !this.workspaceRoot) return [];
+        if (!this.storagePath) return [];
         try {
             const data = fs.readFileSync(this.storagePath, 'utf8');
-            const commentsData = yaml.load(data) as Partial<Comment>[];
+            const commentsData = yaml.load(data) as any[]; // Use any[] to be flexible with the stored data
             if (!commentsData) {
                 return [];
             }
-            const workspaceRoot = this.workspaceRoot;
 
-            return commentsData.map((c: Partial<Comment>) => {
+            return commentsData.map((c: any) => {
                 if (!c.fileUri) {
                     throw new Error('Missing fileUri in comment data');
                 }
-                const absolutePath = path.join(workspaceRoot, c.fileUri as unknown as string);
                 return {
                     ...c,
-                    fileUri: vscode.Uri.file(absolutePath),
+                    id: c.id || '',
+                    text: c.text || '',
+                    fileUri: vscode.Uri.parse(c.fileUri),
+                    lineNumber: c.lineNumber || 0,
+                    commitHash: c.commitHash || '',
                     completed: c.completed || false,
                     createdAt: c.createdAt ? new Date(c.createdAt) : new Date()
                 } as Comment;
@@ -60,13 +62,11 @@ export class StorageManager {
     }
 
     public writeComments(comments: Comment[]): void {
-        if (!this.storagePath || !this.workspaceRoot) return;
-        const workspaceRoot = this.workspaceRoot;
+        if (!this.storagePath) return;
         const storableComments = comments.map(c => {
-            const relativePath = path.relative(workspaceRoot, c.fileUri.fsPath);
             return {
                 ...c,
-                fileUri: relativePath,
+                fileUri: c.fileUri.toString(), // Store the URI as a string
             };
         });
         fs.writeFileSync(this.storagePath, yaml.dump(storableComments));

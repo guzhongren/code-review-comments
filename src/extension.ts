@@ -36,22 +36,35 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        if (editor.document.uri.scheme !== DiffContentProvider.scheme) {
-            editor.setDecorations(bellDecorationType, []);
-            return;
-        }
-
-        const query = JSON.parse(editor.document.uri.query);
         const comments = storageManager.readComments();
         const decorations: vscode.DecorationOptions[] = [];
 
-        for (const comment of comments) {
-            const commentFileUri = vscode.Uri.file(path.join(query.repoRoot, query.relativePath));
-            if (comment.fileUri.toString() === commentFileUri.toString() && comment.commitHash === query.commitHash) {
-                const position = new vscode.Position(comment.lineNumber, 0);
-                decorations.push({ range: new vscode.Range(position, position) });
+        if (editor.document.uri.scheme === DiffContentProvider.scheme) {
+            // Handle diff view
+            try {
+                const query = JSON.parse(editor.document.uri.query);
+                const commentFileUri = vscode.Uri.file(path.join(query.repoRoot, query.relativePath));
+
+                for (const comment of comments) {
+                    if (comment.fileUri.fsPath === commentFileUri.fsPath && comment.commitHash === query.commitHash) {
+                        const position = new vscode.Position(comment.lineNumber, 0);
+                        decorations.push({ range: new vscode.Range(position, position) });
+                    }
+                }
+            } catch (error) {
+                console.warn("Failed to parse diff content URI for decorations:", error);
+            }
+        } else {
+            // Handle regular file view
+            const currentFileUri = editor.document.uri;
+            for (const comment of comments) {
+                if (comment.fileUri.fsPath === currentFileUri.fsPath) {
+                    const position = new vscode.Position(comment.lineNumber, 0);
+                    decorations.push({ range: new vscode.Range(position, position) });
+                }
             }
         }
+
         editor.setDecorations(bellDecorationType, decorations);
     }
 

@@ -40,7 +40,7 @@ export function activate(context: vscode.ExtensionContext) {
         const decorations: vscode.DecorationOptions[] = [];
 
         if (editor.document.uri.scheme === DiffContentProvider.scheme) {
-            // Handle diff view
+            // Only show bell icon in diff view
             try {
                 const query = JSON.parse(editor.document.uri.query);
                 const commentFileUri = vscode.Uri.file(path.join(query.repoRoot, query.relativePath));
@@ -53,15 +53,6 @@ export function activate(context: vscode.ExtensionContext) {
                 }
             } catch (error) {
                 console.warn("Failed to parse diff content URI for decorations:", error);
-            }
-        } else {
-            // Handle regular file view
-            const currentFileUri = editor.document.uri;
-            for (const comment of comments) {
-                if (comment.fileUri.fsPath === currentFileUri.fsPath) {
-                    const position = new vscode.Position(comment.lineNumber, 0);
-                    decorations.push({ range: new vscode.Range(position, position) });
-                }
             }
         }
 

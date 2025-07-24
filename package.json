@@ -73,7 +73,8 @@
       "editor/context": [
         {
           "command": "code-review-comments.addComment",
-          "group": "navigation"
+          "group": "navigation",
+          "when": "isInDiffEditor"
         }
       ],
       "view/title": [

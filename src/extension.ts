@@ -191,13 +191,8 @@ export function activate(context: vscode.ExtensionContext) {
                 path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, c.fileName) === targetFileName && c.hash === editorVersionHash
             );
         } else {
-            // Regular file editor
-            targetFileName = editor.document.fileName;
-            commentsToDecorate = commentManager.getComments().filter(c =>
-                // Compare stored relative path with the absolute path from editor.document.fileName
-                // Need to convert comment.fileName to absolute for comparison
-                path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, c.fileName) === targetFileName
-            );
+            // Not a diff editor, so no decorations
+            commentsToDecorate = [];
         }
 
         const decorations: vscode.DecorationOptions[] = commentsToDecorate.map(comment => {

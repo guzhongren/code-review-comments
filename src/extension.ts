@@ -188,11 +188,17 @@ export function activate(context: vscode.ExtensionContext) {
             commentsToDecorate = commentManager.getComments().filter(c =>
                 // Compare stored relative path with the absolute path from editor.document.uri.path
                 // Need to convert comment.fileName to absolute for comparison
-                path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, c.fileName) === targetFileName && c.hash === editorVersionHash
+                path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, c.fileName) === targetFileName && c.hash === editorVersionHash && !c.completed
             );
-        } else {
-            // Not a diff editor, so no decorations
+        } else if (editor.document.uri.scheme === 'file') {
+            // It's a regular file editor, clear decorations
             commentsToDecorate = [];
+        } else {
+            // Any other scheme (e.g., 'git', 'untitled'), treat as a regular file for decoration purposes
+            targetFileName = editor.document.fileName;
+            commentsToDecorate = commentManager.getComments().filter(c =>
+                path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, c.fileName) === targetFileName
+            );
         }
 
         const decorations: vscode.DecorationOptions[] = commentsToDecorate.map(comment => {

@@ -1,21 +1,136 @@
 {
-  "name": "diff-comments",
+  "name": "code-review-comments",
   "publisher": "guzhongren",
-  "displayName": "Diff Comments",
-  "description": "Add comments to diff views, just like in GitHub PRs.",
-  "version": "0.1.4",
+  "displayName": "Code Review Comments",
+  "description": "A powerful VS Code extension that allows you to add comments to diff views, just like in GitHub Pull Requests. Keep track of your code review thoughts, bug reports, and improvement suggestions directly in your development environment.",
+  "version": "0.1.5",
   "license": "GPL-3.0-or-later",
-  "homepage": "https://github.com/guzhongren/diff-comments#readme",
+  "homepage": "https://github.com/guzhongren/code-review-comments#readme",
   "bugs": {
-    "url": "https://github.com/guzhongren/diff-comments/issues"
+    "url": "https://github.com/guzhongren/code-review-comments/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guzhongren/diff-comments.git"
+    "url": "https://github.com/guzhongren/code-review-comments.git"
   },
-  "icon": "icon/icon.drawio.png",
+  "icon": "resources/icon.drawio.png",
   "engines": {
-    "vscode": "^1.85.0"
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:code-review-comments.addComment",
+    "onView:code-review-comments-view"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "code-review-comments.addComment",
+        "title": "Add Comment"
+      },
+      {
+        "command": "code-review-comments.showDiff",
+        "title": "Show Diff"
+      },
+      {
+        "command": "code-review-comments.deleteComment",
+        "title": "Delete Comment",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "code-review-comments.refresh",
+        "title": "Refresh Comments",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "code-review-comments.deleteAllComments",
+        "title": "Delete All Comments",
+        "icon": "$(trash)",
+        "when": "view == code-review-comments-view"
+      },
+      {
+        "command": "code-review-comments.toggleAllCommentsCompleted",
+        "title": "Toggle All Comments Completed",
+        "icon": "$(check-all)",
+        "when": "view == code-review-comments-view"
+      },
+      {
+        "command": "code-review-comments.toggleCompleted",
+        "title": "Toggle Completed Status",
+        "icon": "$(check)"
+      },
+      {
+        "command": "code-review-comments.editComment",
+        "title": "Edit Comment",
+        "icon": "$(edit)"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "code-review-comments.addComment",
+          "group": "navigation"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "code-review-comments.refresh",
+          "when": "view == code-review-comments-view",
+          "group": "navigation"
+        },
+        {
+          "command": "code-review-comments.deleteAllComments",
+          "when": "view == code-review-comments-view",
+          "group": "navigation"
+        },
+        {
+          "command": "code-review-comments.toggleAllCommentsCompleted",
+          "when": "view == code-review-comments-view",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "code-review-comments.toggleCompleted",
+          "when": "view == code-review-comments-view && viewItem == comment",
+          "group": "inline",
+          "icon": "$(check)"
+        },
+        {
+          "command": "code-review-comments.deleteComment",
+          "when": "view == code-review-comments-view && viewItem == comment",
+          "group": "inline",
+          "icon": "$(trash)"
+        },
+        {
+          "command": "code-review-comments.editComment",
+          "when": "view == code-review-comments-view && viewItem == comment",
+          "group": "inline",
+          "icon": "$(edit)"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "code-review-comments-view-container",
+          "title": "Code Review Comments",
+          "icon": "resources/icon.drawio.svg"
+        }
+      ]
+    },
+    "views": {
+      "code-review-comments-view-container": [
+        {
+          "id": "code-review-comments-view",
+          "name": "Comments"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -25,142 +140,18 @@
     "lint": "eslint src --ext ts",
     "test": "vscode-test"
   },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "onStartupFinished",
-    "onView:diff-comments-view",
-    "onCommand:diff-comments.addComment"
-  ],
-  "main": "./out/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "diff-comments.addComment",
-        "title": "Add Diff Comment",
-        "icon": "$(comment-add)"
-      },
-      {
-        "command": "diff-comments.refresh",
-        "title": "Refresh",
-        "icon": "$(refresh)"
-      },
-      {
-        "command": "diff-comments.deleteComment",
-        "title": "Delete Comment",
-        "icon": "$(trash)"
-      },
-      {
-        "command": "diff-comments.editComment",
-        "title": "Edit Comment",
-        "icon": "$(edit)"
-      },
-      {
-        "command": "diff-comments.jumpToComment",
-        "title": "Jump to Comment",
-        "icon": "$(go-to-file)"
-      },
-      {
-        "command": "diff-comments.showDiffInfo",
-        "title": "Show Diff Info",
-        "icon": "$(info)"
-      },
-      {
-        "command": "diff-comments.toggleCompleted",
-        "title": "Toggle Completed",
-        "icon": "$(check)"
-      }
-    ],
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "diff-comments-view-container",
-          "title": "Diff Comments",
-          "icon": "icon/icon.drawio.png"
-        }
-      ]
-    },
-    "views": {
-      "diff-comments-view-container": [
-        {
-          "id": "diff-comments-view",
-          "name": "Comments",
-          "contextualTitle": "Diff Comments"
-        }
-      ]
-    },
-    "menus": {
-      "view/title": [
-        {
-          "command": "diff-comments.refresh",
-          "when": "view == diff-comments-view",
-          "group": "navigation"
-        }
-      ],
-      "view/item/context": [
-        {
-          "command": "diff-comments.toggleCompleted",
-          "when": "view == diff-comments-view && viewItem == comment",
-          "group": "inline"
-        },
-        {
-          "command": "diff-comments.editComment",
-          "when": "view == diff-comments-view && viewItem == comment",
-          "group": "inline"
-        },
-        {
-          "command": "diff-comments.deleteComment",
-          "when": "view == diff-comments-view && viewItem == comment",
-          "group": "inline"
-        }
-      ],
-      "editor/context": [
-        {
-          "when": "isInDiffEditor",
-          "command": "diff-comments.addComment",
-          "group": "navigation"
-        }
-      ]
-    },
-    "colors": [
-      {
-        "id": "diffComments.completedForeground",
-        "description": "Foreground color for completed comments",
-        "defaults": {
-          "dark": "#888888",
-          "light": "#888888"
-        }
-      }
-    ]
-  },
-  "eslintConfig": {
-    "root": true,
-    "parser": "@typescript-eslint/parser",
-    "plugins": [
-      "@typescript-eslint"
-    ],
-    "extends": [
-      "eslint:recommended",
-      "plugin:@typescript-eslint/recommended"
-    ],
-    "rules": {}
-  },
   "devDependencies": {
-    "@types/fs-extra": "^11.0.4",
     "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^24.0.13",
+    "@types/node": "^24.1.0",
     "@types/uuid": "^10.0.0",
-    "@types/vscode": "^1.85.0",
-    "@typescript-eslint/eslint-plugin": "^8.0.0",
-    "@typescript-eslint/parser": "^8.0.0",
-    "@vscode/test-cli": "^0.0.11",
+    "@types/vscode": "^1.90.0",
+    "@typescript-eslint/eslint-plugin": "^7.4.0",
+    "@typescript-eslint/parser": "^7.4.0",
+    "@vscode/test-cli": "^0.0.8",
     "@vscode/test-electron": "^2.3.9",
     "eslint": "^8.57.0",
-    "fs-extra": "^11.3.0",
-    "typescript": "^5.4.5",
-    "@vscode/vsce": "^3.6.0"
+    "typescript": "^5.8.3"
   },
   "dependencies": {
     "js-yaml": "^4.1.0",

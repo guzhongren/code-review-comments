@@ -178,8 +178,6 @@ export function activate(context: vscode.ExtensionContext) {
 
         // Check if it's our custom diff editor
         if (editor.document.uri.scheme === DiffContentProvider.scheme) {
-            const query = new URLSearchParams(editor.document.uri.query);
-            const editorVersionHash = query.get('versionHash');
             // The uri.path for our custom scheme is the absolute file path
             targetFileName = editor.document.uri.path;
 
@@ -188,7 +186,7 @@ export function activate(context: vscode.ExtensionContext) {
             commentsToDecorate = commentManager.getComments().filter(c =>
                 // Compare stored relative path with the absolute path from editor.document.uri.path
                 // Need to convert comment.fileName to absolute for comparison
-                path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, c.fileName) === targetFileName && c.hash === editorVersionHash && !c.completed
+                path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, c.fileName) === targetFileName && !c.completed
             );
         } else if (editor.document.uri.scheme === 'file') {
             // It's a regular file editor, clear decorations
@@ -197,7 +195,7 @@ export function activate(context: vscode.ExtensionContext) {
             // Any other scheme (e.g., 'git', 'untitled'), treat as a regular file for decoration purposes
             targetFileName = editor.document.fileName;
             commentsToDecorate = commentManager.getComments().filter(c =>
-                path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, c.fileName) === targetFileName
+                path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, c.fileName) === targetFileName && !c.completed
             );
         }
 

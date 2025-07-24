@@ -30,42 +30,42 @@
     "commands": [
       {
         "command": "code-review-comments.addComment",
-        "title": "Add Comment"
+        "title": "Code Review Comments: Add Comment"
       },
       {
         "command": "code-review-comments.showDiff",
-        "title": "Show Diff"
+        "title": "Code Review Comments: Show Diff"
       },
       {
         "command": "code-review-comments.deleteComment",
-        "title": "Delete Comment",
+        "title": "Code Review Comments: Delete Comment",
         "icon": "$(trash)"
       },
       {
         "command": "code-review-comments.refresh",
-        "title": "Refresh Comments",
+        "title": "Code Review Comments: Refresh Comments",
         "icon": "$(refresh)"
       },
       {
         "command": "code-review-comments.deleteAllComments",
-        "title": "Delete All Comments",
+        "title": "Code Review Comments: Delete All Comments",
         "icon": "$(trash)",
         "when": "view == code-review-comments-view"
       },
       {
         "command": "code-review-comments.toggleAllCommentsCompleted",
-        "title": "Toggle All Comments Completed",
+        "title": "Code Review Comments: Toggle All Comments Completed",
         "icon": "$(check-all)",
         "when": "view == code-review-comments-view"
       },
       {
         "command": "code-review-comments.toggleCompleted",
-        "title": "Toggle Completed Status",
+        "title": "Code Review Comments: Toggle Completed Status",
         "icon": "$(check)"
       },
       {
         "command": "code-review-comments.editComment",
-        "title": "Edit Comment",
+        "title": "Code Review Comments: Edit Comment",
         "icon": "$(edit)"
       }
     ],
@@ -74,7 +74,7 @@
         {
           "command": "code-review-comments.addComment",
           "group": "navigation",
-          "when": "editorTextFocus && !editorReadonly"
+          "when": "editorTextFocus && !editorReadonly && editorScheme == 'file' || isInDiffEditor"
         }
       ],
       "view/title": [

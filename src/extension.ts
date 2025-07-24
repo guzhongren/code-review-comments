@@ -168,7 +168,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Add decoration for comments
     const decorationType = vscode.window.createTextEditorDecorationType({
-        gutterIconPath: context.asAbsolutePath('resources/bell.svg'),
+        gutterIconPath: context.asAbsolutePath('resources/comment.svg'),
         gutterIconSize: 'contain'
     });
 

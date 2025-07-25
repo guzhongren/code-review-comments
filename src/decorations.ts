@@ -33,12 +33,12 @@ export function setupDecorations(context: vscode.ExtensionContext, commentManage
             }
 
             editorCommitHash = queryParams.ref;
-            const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
-            if (!workspaceFolder) {
-                console.error('Could not determine workspace folder for Git URI in updateDecorations.');
-                return; // Exit early if no workspace folder
+            const absoluteFilePathFromQuery = queryParams.path; // This is the absolute path from the query
+            if (!absoluteFilePathFromQuery) {
+                console.error('Git URI query missing path parameter in updateDecorations.');
+                return; // Exit early if path is missing
             }
-            targetFileName = path.relative(workspaceFolder.uri.fsPath, uri.fsPath);
+            targetFileName = vscode.workspace.asRelativePath(absoluteFilePathFromQuery);
 
             // Only decorate if the editor's commit hash matches the comment's hash (right side of diff)
             commentsToDecorate = commentManager.getComments().filter(c =>

@@ -5,6 +5,16 @@
   "description": "A powerful VS Code extension that allows you to add comments to diff views, just like in GitHub Pull Requests. Keep track of your code review thoughts, bug reports, and improvement suggestions directly in your development environment.",
   "version": "0.1.8",
   "license": "GPL-3.0-or-later",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "ts:check": "tsc --noEmit",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "package": "npx vsce package",
+    "test": "vscode-test"
+  },
   "homepage": "https://github.com/guzhongren/code-review-comments#readme",
   "bugs": {
     "url": "https://github.com/guzhongren/code-review-comments/issues"
@@ -132,16 +142,6 @@
         }
       ]
     }
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "ts:check": "tsc --noEmit",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
-    "package": "npx vsce package",
-    "test": "vscode-test"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",

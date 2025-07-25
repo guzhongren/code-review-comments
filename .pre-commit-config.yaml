@@ -22,6 +22,8 @@ repos:
         name: Package
         entry: npm run package
         language: system
+        files: \.ts$
+        pass_filenames: false
         stages:
           - pre-push
   - repo: https://github.com/pre-commit/pre-commit-hooks

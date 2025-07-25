@@ -3,7 +3,7 @@
   "publisher": "guzhongren",
   "displayName": "Code Review Comments",
   "description": "A powerful VS Code extension that allows you to add comments to diff views, just like in GitHub Pull Requests. Keep track of your code review thoughts, bug reports, and improvement suggestions directly in your development environment.",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "license": "GPL-3.0-or-later",
   "scripts": {
     "vscode:prepublish": "npm run compile",

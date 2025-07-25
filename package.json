@@ -10,7 +10,7 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "ts:check": "tsc --noEmit",
-    "pretest": "npm run compile && npm run lint",
+    "pretest": "npm run lint",
     "lint": "eslint src --ext ts",
     "package": "npx vsce package",
     "test": "vscode-test"

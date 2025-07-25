@@ -52,25 +52,75 @@ export function activate(context: vscode.ExtensionContext) {
         let parentHash: string;
         let relativeFileName: string; // Changed to relativeFileName
 
-        if (editor.document.uri.scheme === DiffContentProvider.scheme) {
-            // Adding comment from a diff view
-            const query = new URLSearchParams(editor.document.uri.query);
-            const versionHash = query.get('versionHash');
-            relativeFileName = editor.document.uri.path; // This is already relative
-
-            if (!versionHash) {
-                vscode.window.showErrorMessage('Could not determine version hash from diff view.');
+        if (editor.document.uri.scheme === 'git') {
+            // Adding comment from a Git diff view (right side)
+            const uri = editor.document.uri;
+            let queryParams: any;
+            try {
+                queryParams = JSON.parse(uri.query);
+            } catch (e: any) {
+                vscode.window.showErrorMessage(`Failed to parse Git URI query: ${e.message}`);
                 return;
             }
-            commitHash = versionHash;
-            const parent = await commentManager.getParentCommitHash(commitHash, editor.document.uri);
-            if (parent === undefined) {
-                vscode.window.showErrorMessage('Could not get parent commit hash for the diff view version.');
+            commitHash = queryParams.ref || ''; // 'ref' is the commit hash for git: URIs
+
+            // Ensure commitHash is not empty before proceeding
+            if (!commitHash) {
+                vscode.window.showErrorMessage('Could not determine commit hash from Git URI. Please ensure the file is part of a valid Git commit.');
                 return;
             }
-            parentHash = parent;
 
-        } else {
+            // The path for a git: URI is typically /<repo_root_path>/<relative_file_path>
+            // We need to get the relative file path from the workspace root
+            // Try to get the Git API
+            const gitExtension = vscode.extensions.getExtension('vscode.git');
+            if (!gitExtension) {
+                vscode.window.showErrorMessage('Git extension not found. Please ensure Git extension is enabled.');
+                return;
+            }
+            const git = gitExtension.exports;
+            const api = git.getAPI(1); // Get Git API version 1
+            if (!api) {
+                vscode.window.showErrorMessage('Git API not ready.');
+                return;
+            }
+            const repository = api.getRepository(uri);
+
+            if (!repository) {
+                vscode.window.showErrorMessage('Could not find Git repository for the current file.');
+                return;
+            }
+
+            // The uri.path for a git: URI is typically /<repo_root_path>/<relative_file_path>
+            // We need to make it relative to the repository root
+            relativeFileName = path.relative(repository.rootUri.fsPath, uri.fsPath);
+
+            // For git: URIs, the parent hash is usually the base of the diff.
+            // The 'ref' in the query is the commit hash of the *modified* file.
+            // We need to get the parent of that commit.
+            // This might require fetching the commit object and getting its parent.
+            // For now, we'll assume the parent hash is available via the query or can be derived.
+            // For a simple diff, the 'ref' is the new commit, and the 'parent' is the old commit.
+            // The Git URI query parameters can be complex. Let's try to extract the base commit if available.
+            parentHash = queryParams.base || ''; // 'base' might be the parent commit hash
+
+            if (!parentHash) {
+                // Fallback: if 'base' is not present, try to get the parent from the Git API
+                try {
+                    const commit = await repository.getCommit(commitHash);
+                    if (commit && commit.parents && commit.parents.length > 0) {
+                        parentHash = commit.parents[0];
+                    } else {
+                        vscode.window.showErrorMessage('Could not determine parent commit hash.');
+                        return;
+                    }
+                } catch (e: any) {
+                    vscode.window.showErrorMessage(`Error getting parent commit: ${e.message}`);
+                    return;
+                }
+            }
+
+        } else if (editor.document.uri.scheme === 'file') {
             // Adding comment from a regular file editor
             const blameResult = await commentManager.getBlameCommitForLine(editor.document.uri, position.line + 1);
             if (!blameResult) {
@@ -80,6 +130,10 @@ export function activate(context: vscode.ExtensionContext) {
             commitHash = blameResult.commitHash;
             parentHash = blameResult.parentHash;
             relativeFileName = vscode.workspace.asRelativePath(editor.document.fileName); // Convert to relative
+        } else {
+            // Handle other schemes if necessary, or show an error
+            vscode.window.showErrorMessage(`Unsupported document scheme: ${editor.document.uri.scheme}`);
+            return;
         }
 
         const newComment: Comment = {
@@ -149,8 +203,8 @@ export function activate(context: vscode.ExtensionContext) {
 
         const relativeFilePathForTitle = vscode.workspace.asRelativePath(absoluteFileName);
 
-        const originalUri = vscode.Uri.parse(`${DiffContentProvider.scheme}:${absoluteFileName}?versionHash=${comment.parentHash}`);
-        const modifiedUri = vscode.Uri.parse(`${DiffContentProvider.scheme}:${absoluteFileName}?versionHash=${comment.hash}`);
+        const originalUri = vscode.Uri.parse(`git:${absoluteFileName}?${JSON.stringify({ path: absoluteFileName, ref: comment.parentHash })}`);
+        const modifiedUri = vscode.Uri.file(absoluteFileName);
 
         const title = `Diff: ${relativeFilePathForTitle} (${comment.parentHash.substring(0, 7)}..${comment.hash.substring(0, 7)})`;
 
@@ -175,28 +229,52 @@ export function activate(context: vscode.ExtensionContext) {
     const updateDecorations = (editor: vscode.TextEditor) => {
         let commentsToDecorate: Comment[] = [];
         let targetFileName: string;
+        let editorCommitHash: string | undefined;
 
-        // Check if it's our custom diff editor
         if (editor.document.uri.scheme === DiffContentProvider.scheme) {
-            // The uri.path for our custom scheme is the absolute file path
+            // Our custom diff editor (right side)
             targetFileName = editor.document.uri.path;
-
-            // Only decorate the right side of the diff (which corresponds to the comment's 'hash')
-            // and ensure the comment's hash matches the editor's version hash
             commentsToDecorate = commentManager.getComments().filter(c =>
-                // Compare stored relative path with the absolute path from editor.document.uri.path
-                // Need to convert comment.fileName to absolute for comparison
                 path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, c.fileName) === targetFileName && !c.completed
+            );
+        } else if (editor.document.uri.scheme === 'git') {
+            // VS Code's native Git diff view (left or right side)
+            const uri = editor.document.uri;
+            let queryParams: any;
+            try {
+                queryParams = JSON.parse(uri.query);
+            } catch (e) {
+                console.error('Failed to parse Git URI query in updateDecorations:', e);
+                return; // Exit early if URI is malformed
+            }
+
+            editorCommitHash = queryParams.ref;
+            const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
+            if (!workspaceFolder) {
+                console.error('Could not determine workspace folder for Git URI in updateDecorations.');
+                return; // Exit early if no workspace folder
+            }
+            targetFileName = path.relative(workspaceFolder.uri.fsPath, uri.fsPath);
+
+            // Only decorate if the editor's commit hash matches the comment's hash (right side of diff)
+            commentsToDecorate = commentManager.getComments().filter(c =>
+                c.fileName === targetFileName && c.hash === editorCommitHash && !c.completed
             );
         } else if (editor.document.uri.scheme === 'file') {
-            // It's a regular file editor, clear decorations
-            commentsToDecorate = [];
+            // Regular file editor
+            const workspaceFolder = vscode.workspace.getWorkspaceFolder(editor.document.uri);
+            if (workspaceFolder) {
+                targetFileName = path.relative(workspaceFolder.uri.fsPath, editor.document.fileName);
+                commentsToDecorate = commentManager.getComments().filter(c =>
+                    c.fileName === targetFileName && !c.completed
+                );
+            } else {
+                // If no workspace folder, we can't reliably get a relative path to match stored comments
+                commentsToDecorate = [];
+            }
         } else {
-            // Any other scheme (e.g., 'git', 'untitled'), treat as a regular file for decoration purposes
-            targetFileName = editor.document.fileName;
-            commentsToDecorate = commentManager.getComments().filter(c =>
-                path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, c.fileName) === targetFileName && !c.completed
-            );
+            // Any other scheme (e.g., 'untitled'), no decorations
+            commentsToDecorate = [];
         }
 
         const decorations: vscode.DecorationOptions[] = commentsToDecorate.map(comment => {

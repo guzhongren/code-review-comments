@@ -138,30 +138,5 @@ export class CommentManager {
         return undefined;
     }
 
-    public async getParentCommitHash(commitHash: string, fileUri: vscode.Uri): Promise<string | undefined> {
-        try {
-            const gitExtension = vscode.extensions.getExtension('vscode.git');
-            if (!gitExtension) {
-                vscode.window.showWarningMessage('Git extension not found.');
-                return undefined;
-            }
-            const git = gitExtension.exports;
-            const api = git.getAPI(1);
 
-            const repo = api.getRepository(fileUri);
-            if (!repo) {
-                vscode.window.showWarningMessage('No Git repository found for the file.');
-                return undefined;
-            }
-
-            const commit = await repo.getCommit(commitHash);
-            if (commit && commit.parents.length > 0) {
-                return commit.parents[0];
-            }
-        } catch (error) {
-            console.error(`Error getting parent hash for commit ${commitHash}:`, error);
-            vscode.window.showErrorMessage(`Failed to get parent commit information for ${commitHash}.`);
-        }
-        return undefined;
-    }
 }

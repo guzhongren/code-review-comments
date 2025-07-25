@@ -2,6 +2,8 @@
 
 A powerful VS Code extension that allows you to add comments to diff views, just like in GitHub Pull Requests. Keep track of your code review thoughts, bug reports, and improvement suggestions directly in your development environment.
 
+![Code Review Comments](https://cdn.jsdelivr.net/gh/guzhongren/picx-images-hosting@master/plugins/code-review-comments/code-review-comments.6bhdgqda0w.gif)
+
 ## Features
 
 ### 🎯 Context-Aware Comments

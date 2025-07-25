@@ -1,6 +1,29 @@
 default_install_hook_types: [pre-commit, pre-push, commit-msg]
 
 repos:
+  - repo: local
+    hooks:
+      - id: ts-check
+        name: Check TS
+        entry: npm run ts:check
+        language: system
+        files: \.ts$
+        stages:
+          - pre-commit
+      - id: compile
+        name: Compile
+        entry: npm run compile
+        language: system
+        files: \.ts$
+        pass_filenames: false
+        stages:
+          - pre-commit
+      - id: package
+        name: Package
+        entry: npm run package
+        language: system
+        stages:
+          - pre-push
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
@@ -19,8 +42,8 @@ repos:
         stages:
           - pre-commit
   - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
-    rev: 3.0.3  # pick a git hash / tag to point to
+    rev: 3.0.3 # pick a git hash / tag to point to
     hooks:
-    -   id: editorconfig-checker
+      - id: editorconfig-checker
         alias: ec
         exclude: LICENSE

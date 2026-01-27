@@ -302,6 +302,11 @@ Currently, the extension works out of the box with no configuration required. Co
 - YAML storage format
 - Context-aware commit detection
 
+## How to Start debug in local env
+
+1. Install deps via `npm install`
+2. Press `F5` to launch a new VS Code window with the extension loaded
+
 ## License
 
 MIT License - see LICENSE file for details

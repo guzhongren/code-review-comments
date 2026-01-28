@@ -15,7 +15,9 @@ export class CommentProvider implements vscode.TreeDataProvider<Comment> {
 
     getTreeItem(element: Comment): vscode.TreeItem {
         const treeItem = new vscode.TreeItem(element.content, vscode.TreeItemCollapsibleState.None);
-        treeItem.description = `${element.fileName}:${element.lineNumber} (${element.parentHash.substring(0, 7)}<->${element.hash.substring(0, 7)}) - ${new Date(element.createdAt).toLocaleString()}`;
+        const shortParent = element.parentHash && element.parentHash.length >= 7 ? element.parentHash.substring(0, 7) : (element.parentHash || 'n/a');
+        const shortHash = element.hash && element.hash.length >= 7 ? element.hash.substring(0, 7) : (element.hash || 'n/a');
+        treeItem.description = `${element.fileName}:${element.lineNumber} (${shortParent}<->${shortHash}) - ${new Date(element.createdAt).toLocaleString()}`;
         treeItem.command = {
             command: 'code-review-comments.showDiff',
             title: 'Show Diff',

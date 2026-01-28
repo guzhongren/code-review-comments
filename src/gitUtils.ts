@@ -19,12 +19,7 @@ export async function getGitInfoForUri(uri: vscode.Uri): Promise<GitInfo | undef
         vscode.window.showErrorMessage(`Failed to parse Git URI query: ${e.message}`);
         return undefined;
     }
-    commitHash = queryParams.ref || '';
-
-    if (!commitHash) {
-        vscode.window.showErrorMessage('Could not determine commit hash from Git URI. Please ensure the file is part of a valid Git commit.');
-        return undefined;
-    }
+    commitHash = queryParams.ref || 'HEAD';
 
     const gitExtension = vscode.extensions.getExtension('vscode.git');
     if (!gitExtension) {
@@ -47,6 +42,23 @@ export async function getGitInfoForUri(uri: vscode.Uri): Promise<GitInfo | undef
     relativeFileName = path.relative(repository.rootUri.fsPath, uri.fsPath);
 
     parentHash = queryParams.base || '';
+
+    // Resolve commitHash if it's a symbolic ref (like HEAD) to actual SHA
+    try {
+        if (!commitHash.match(/^[0-9a-f]{40}$/i)) {
+            // commitHash is not a full SHA, try to resolve it
+            const commit = await repository.getCommit(commitHash);
+            if (commit) {
+                commitHash = commit.hash;
+            } else {
+                vscode.window.showErrorMessage(`Could not resolve commit reference "${commitHash}". Please ensure the file is part of a valid Git commit.`);
+                return undefined;
+            }
+        }
+    } catch (e: any) {
+        vscode.window.showErrorMessage(`Error resolving commit reference: ${e.message}`);
+        return undefined;
+    }
 
     if (!parentHash) {
         try {

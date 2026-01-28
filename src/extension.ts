@@ -136,7 +136,9 @@ export function activate(context: vscode.ExtensionContext) {
         const originalUri = vscode.Uri.parse(`git:${absoluteFileName}?${JSON.stringify({ path: absoluteFileName, ref: comment.parentHash })}`);
         const modifiedUri = vscode.Uri.file(absoluteFileName);
 
-        const title = `Diff: ${relativeFilePathForTitle} (${comment.parentHash.substring(0, 7)}..${comment.hash.substring(0, 7)})`;
+        const shortParent = comment.parentHash && comment.parentHash.length >= 7 ? comment.parentHash.substring(0, 7) : (comment.parentHash || 'n/a');
+        const shortHash = comment.hash && comment.hash.length >= 7 ? comment.hash.substring(0, 7) : (comment.hash || 'n/a');
+        const title = `Diff: ${relativeFilePathForTitle} (${shortParent}..${shortHash})`;
 
         // Add selection to jump to the line in the modified (right) file of the diff view
         const options: vscode.TextDocumentShowOptions = {

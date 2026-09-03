@@ -157,7 +157,7 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^5.0.0",
     "uuid": "^13.0.0"
   }
 }

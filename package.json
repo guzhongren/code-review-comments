@@ -154,7 +154,7 @@
     "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^2.3.9",
     "eslint": "^8.57.0",
-    "typescript": "^5.8.3"
+    "typescript": "^7.0.0"
   },
   "dependencies": {
     "js-yaml": "^4.1.0",
